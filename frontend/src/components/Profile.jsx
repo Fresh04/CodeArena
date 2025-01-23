@@ -13,6 +13,8 @@ const ProfilePage = () => {
  const [error, setError] = useState(null);
  const [isLoggedIn, setIsLoggedIn] = useState(false);
  const [access, setAccess] = useState('');
+ const [accuracy, setAccuracy] = useState('0%');
+ const [totalSolved, setTotalSolved] = useState(0);
  const loggedInUsername = localStorage.getItem('username');
 
  const logout = () => {
@@ -40,10 +42,24 @@ const ProfilePage = () => {
      try {
        const response = await axios.get(`${API_BASE_URL}/getimage/${username}`);
        if (response.data.imageUrl) {
-          setImageUrl(response.data.imageUrl);
+         setImageUrl(response.data.imageUrl);
        }
      } catch (error) {
        console.error('Error fetching image URL:', error);
+     }
+   };
+
+   const fetchSubmissions = async () => {
+     try {
+       const response = await axios.get(`${API_BASE_URL}/submissions`);
+       const userSubmissions = response.data.filter(sub => sub.username === username);
+       const acceptedSubmissions = userSubmissions.filter(sub => sub.status === 'ACCEPTED').length;
+       const totalSubmissions = userSubmissions.length;
+       const calculatedAccuracy = totalSubmissions > 0 ? ((acceptedSubmissions / totalSubmissions) * 100).toFixed(2) : '0';
+       setAccuracy(`${calculatedAccuracy}%`);
+       setTotalSolved(acceptedSubmissions);
+     } catch (error) {
+       console.error('Error fetching submissions:', error);
      }
    };
 
@@ -54,6 +70,7 @@ const ProfilePage = () => {
 
    fetchProfile();
    fetchImageUrl();
+   fetchSubmissions();
  }, [username]);
 
  if (loading) return <div>Loading...</div>;
@@ -61,8 +78,6 @@ const ProfilePage = () => {
 
  const {
    _id = 'Unknown',
-   problemsSolved = 0,
-   accuracy = '0%',
  } = profileData || {};
 
  const handleImageUpload = async (e) => {
@@ -107,7 +122,7 @@ const ProfilePage = () => {
      const token = localStorage.getItem('token');
      await axios.post(`${API_BASE_URL}/saveimage`, {
       userId: _id,
-      imageName: "a",
+      imageName: "",
     }, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -163,16 +178,15 @@ const ProfilePage = () => {
 
            <div className="flex-1">
              <h1 className="text-2xl font-bold text-white-800 mb-2">{username}</h1>
-             <p className="text-gray-400 mb-4">User ID: {_id}</p>
 
              <div className="bg-gray-700 shadow p-4 rounded-lg">
-               <h2 className="text-xl font-semibold text-gray-300 mb-3">Statistics</h2>
+               <h2 className="text-xl font-bold font-starwars text-gray-300 mb-3">Stats</h2>
                <ul className="space-y-2">
-                 <li className="flex justify-between">
+                 <li className="font-bold flex justify-between">
                    <span>Problems Solved:</span>
-                   <span>{problemsSolved}</span>
+                   <span>{totalSolved}</span>
                  </li>
-                 <li className="flex justify-between">
+                 <li className="font-bold flex justify-between">
                    <span>Accuracy:</span>
                    <span>{accuracy}</span>
                  </li>
