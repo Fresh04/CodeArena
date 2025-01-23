@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginResponse, setLoginResponse] = useState("");
   const navigate = useNavigate();
@@ -16,19 +16,19 @@ const Login = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("username", email);
+        localStorage.setItem("username", username);
         localStorage.setItem('access', data.access);
         localStorage.setItem('isLoggedIn', true);
-        navigate(-1); // Go back to the previous page
+        navigate(-1);
       } else {
-        setLoginResponse(data.msg || "Invalid email or password.");
+        setLoginResponse(data.msg || "Invalid username or password.");
       }
     } catch (error) {
       console.error("Login failed:", error);
@@ -42,10 +42,10 @@ const Login = () => {
         <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
         <input
           className="w-full p-3 mb-4 border border-gray-700 rounded bg-gray-700 text-gray-200"
-          placeholder="Email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Username"
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
         />
         <input
           className="w-full p-3 mb-4 border border-gray-700 rounded bg-gray-700 text-gray-200"

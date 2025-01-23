@@ -16,7 +16,12 @@ const Header = ({ isLoggedIn, username, access, logout }) => {
           <div className="flex items-center space-x-4">
             {isLoggedIn ? (
               <>
-                <span className="text-white">{username}</span>
+                <button
+                  onClick={() => nav(`/profile/${username}`)}
+                  className="text-white underline hover:text-gray-300"
+                >
+                  {username}
+                </button>
                 <button
                   onClick={logout}
                   className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
@@ -157,3 +162,4 @@ const Header = ({ isLoggedIn, username, access, logout }) => {
 };
 
 export default Header;
+

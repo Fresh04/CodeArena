@@ -10,6 +10,7 @@ import CodeEditor from './components/Ide.jsx'
 import Submissions from './components/Submissions.jsx'
 import Notes from './components/Notes.jsx'
 import ManageBlogs from './components/Manageblogs.jsx'
+import Profile from './components/Profile.jsx'
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path = "/submissions" element={<Submissions />}></Route>
           <Route path = "/notes" element={<Notes />}></Route>
           <Route path = "/manageblogs" element={<ManageBlogs />}></Route>
+          <Route path = "/profile/:username" element={<Profile />}></Route>
         </Routes>
       </Router>
     </>

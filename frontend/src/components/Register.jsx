@@ -5,6 +5,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const Register = () => {
   const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [responseMessage, setResponseMessage] = useState("");
   const navigate = useNavigate();
@@ -23,12 +24,13 @@ const Register = () => {
         },
         body: JSON.stringify({
           email,
+          username,
           password,
         }),
       });
 
       const data = await response.json();
-      if (response.status === 200) {
+      if (response.status === 201) {
         navigate(-1);
       } else {
         setResponseMessage(data.msg);
@@ -43,6 +45,13 @@ const Register = () => {
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 p-6">
       <div className="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-sm">
         <h2 className="text-2xl font-bold mb-6 text-center text-white">Register</h2>
+        <input
+          type="text"
+          className="w-full p-3 mb-4 border border-gray-700 rounded bg-gray-900 text-gray-100 placeholder-gray-400"
+          placeholder="Enter your username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
         <input
           type="email"
           className="w-full p-3 mb-4 border border-gray-700 rounded bg-gray-900 text-gray-100 placeholder-gray-400"
