@@ -122,7 +122,7 @@ const ProfilePage = () => {
      const token = localStorage.getItem('token');
      await axios.post(`${API_BASE_URL}/saveimage`, {
       userId: _id,
-      imageName: "",
+      imageName: "a",
     }, {
       headers: {
         Authorization: `Bearer ${token}`,
