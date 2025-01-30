@@ -31,7 +31,7 @@ router.post('/', auth, async (req, res) => {
       { username: submission.username },
       { 
         $push: { 
-          submissionDates: new Date() 
+          submissionDates: new Date().toISOString() 
         }
       },
       { 

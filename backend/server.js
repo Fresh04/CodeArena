@@ -56,8 +56,8 @@ app.use('/saveimage', saveimgRoute)
 app.use('/getimage', getimgRoute)
 app.use('/getdates', getdatesRoute)
 
-const PORT = port || 3000;
-app.listen(PORT, () => {
+const PORT = port || 8000;
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
 });
 
