@@ -8,16 +8,21 @@ const Register = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [responseMessage, setResponseMessage] = useState("");
+  const [loading, setLoading] = useState(false);  // For loading state
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
-    if (!password) {
-      setResponseMessage("Password cannot be blank");
+    if (!username.trim() || !password) {
+      setResponseMessage("Please fill in all fields.");
       return;
     }
 
+    setLoading(true);
+    setResponseMessage("");
+
     try {
-      const response = await fetch(`${API_BASE_URL}/register`, {
+      // Step 1: Register the user
+      const registerResponse = await fetch(`${API_BASE_URL}/register`, {
         method: "POST",
         headers: {
           'Content-Type': "application/json",
@@ -29,15 +34,38 @@ const Register = () => {
         }),
       });
 
-      const data = await response.json();
-      if (response.status === 201) {
-        navigate(-1);
+      const registerData = await registerResponse.json();
+
+      if (registerResponse.status === 201) {
+        // Step 2: Automatically log the user in after successful registration
+        const loginResponse = await fetch(`${API_BASE_URL}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: username.trim(), password }),
+        });
+
+        const loginData = await loginResponse.json();
+
+        if (loginResponse.ok) {
+          // Step 3: Store login data (token, username, etc.) in localStorage
+          localStorage.setItem("token", loginData.token);
+          localStorage.setItem("username", username);
+          localStorage.setItem("access", loginData.access);
+          localStorage.setItem("isLoggedIn", true);
+          
+          // Navigate to the previous page after successful login
+          navigate(-1); // You can change this to navigate to any other page
+        } else {
+          setResponseMessage(loginData.msg || "Invalid username or password.");
+        }
       } else {
-        setResponseMessage(data.msg);
+        setResponseMessage(registerData.msg || "Registration failed.");
       }
     } catch (error) {
-      console.error("Error during signup:", error);
-      setResponseMessage("An error occurred");
+      console.error("Registration/Login failed:", error);
+      setResponseMessage("Server error. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,8 +98,9 @@ const Register = () => {
           type="button"
           className="bg-blue-500 text-white w-full py-2 rounded-lg hover:bg-blue-600 transition-colors"
           onClick={handleSubmit}
+          disabled={loading}
         >
-          Register
+          {loading ? "Registering..." : "Register"}
         </button>
         {responseMessage && (
           <p className="mt-4 text-center text-red-400">{responseMessage}</p>

@@ -3,7 +3,7 @@ const router = express.Router();
 
 router.post('/', async (req, res) => {
   try {
-    console.log("Register request received");
+    // console.log("Register request received");
 
     const { email, username, password } = req.body;
 

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Header from './Header';
 import HeatMap from './heatmap';
+import defaultImage from '../assets/default.jpg';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -16,8 +17,7 @@ const getCurrentStreak = (dates) => {
   let streak = 0;
   let currentDate = new Date(sortedDates[0]);
   currentDate.setHours(0, 0, 0, 0);
-  
-  // If the most recent submission is not from today or yesterday, no current streak
+
   const daysDiff = Math.floor((today - currentDate) / (1000 * 60 * 60 * 24));
   if (daysDiff > 1) return 0;
   
@@ -35,7 +35,7 @@ const getCurrentStreak = (dates) => {
     }
   }
   
-  return streak + 1; // Add 1 to include the first day
+  return streak + 1;
 };
 
 const getLongestStreak = (dates) => {
@@ -67,7 +67,7 @@ const getLongestStreak = (dates) => {
 const ProfilePage = () => {
  const { username } = useParams();
  const [profileData, setProfileData] = useState(null);
- const [imageUrl, setImageUrl] = useState('/default-profile.png');
+ const [imageUrl, setImageUrl] = useState(defaultImage);
  const [loading, setLoading] = useState(true);
  const [error, setError] = useState(null);
  const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -200,7 +200,7 @@ const ProfilePage = () => {
     });
 
      alert('Image removed successfully!');
-     setImageUrl('/default-profile.png');
+     setImageUrl(defaultImage);
    } catch (error) {
      console.error('Error removing image:', error);
      alert('Failed to remove image. Please try again.');
@@ -221,7 +221,7 @@ const ProfilePage = () => {
          <div className="flex flex-col md:flex-row items-center">
           <div className="flex-shrink-0 mb-4 md:mb-0 md:mr-6">
                 <img
-                  src={imageUrl}
+                  src={imageUrl || defaultImage}
                   alt="Profile"
                   className="w-40 h-40 ml-7 rounded-full object-cover border-1 border-gray-300"
                 />
