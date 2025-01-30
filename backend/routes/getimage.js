@@ -15,7 +15,7 @@ router.get('/:username', async (req, res) => {
     const user = await db.collection('users').findOne({ username });
 
     if (!user || !user.profileImage) {
-      return res.status(200).json({ imageUrl: '' });
+      return res.status(200).json({ imageUrl: '/default.jpg' });
     }
 
     const s3Client = new S3Client({ 
