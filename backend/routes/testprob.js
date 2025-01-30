@@ -27,6 +27,18 @@ router.post('/', auth, async (req, res) => {
       submissionIndex
     });
 
+    await db.collection('users').updateOne(
+      { username: submission.username },
+      { 
+        $push: { 
+          submissionDates: new Date() 
+        }
+      },
+      { 
+        upsert: false
+      }
+    );
+
     res.status(200).json(result);
   } catch (error) {
     console.error("Error during code execution:", error);

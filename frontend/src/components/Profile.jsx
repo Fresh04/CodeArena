@@ -2,8 +2,67 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import Header from './Header';
+import HeatMap from './heatmap';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+const getCurrentStreak = (dates) => {
+  if (!dates.length) return 0;
+  
+  const sortedDates = [...dates].sort((a, b) => new Date(b) - new Date(a));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  let streak = 0;
+  let currentDate = new Date(sortedDates[0]);
+  currentDate.setHours(0, 0, 0, 0);
+  
+  // If the most recent submission is not from today or yesterday, no current streak
+  const daysDiff = Math.floor((today - currentDate) / (1000 * 60 * 60 * 24));
+  if (daysDiff > 1) return 0;
+  
+  for (let i = 0; i < sortedDates.length - 1; i++) {
+    const current = new Date(sortedDates[i]);
+    const next = new Date(sortedDates[i + 1]);
+    current.setHours(0, 0, 0, 0);
+    next.setHours(0, 0, 0, 0);
+    
+    const diff = Math.floor((current - next) / (1000 * 60 * 60 * 24));
+    if (diff === 1) {
+      streak++;
+    } else {
+      break;
+    }
+  }
+  
+  return streak + 1; // Add 1 to include the first day
+};
+
+const getLongestStreak = (dates) => {
+  if (!dates.length) return 0;
+  
+  const sortedDates = [...dates].sort((a, b) => new Date(a) - new Date(b));
+  let currentStreak = 1;
+  let maxStreak = 1;
+  
+  for (let i = 1; i < sortedDates.length; i++) {
+    const current = new Date(sortedDates[i]);
+    const prev = new Date(sortedDates[i - 1]);
+    current.setHours(0, 0, 0, 0);
+    prev.setHours(0, 0, 0, 0);
+    
+    const diff = Math.floor((current - prev) / (1000 * 60 * 60 * 24));
+    
+    if (diff === 1) {
+      currentStreak++;
+      maxStreak = Math.max(maxStreak, currentStreak);
+    } else {
+      currentStreak = 1;
+    }
+  }
+  
+  return maxStreak;
+};
 
 const ProfilePage = () => {
  const { username } = useParams();
@@ -16,6 +75,7 @@ const ProfilePage = () => {
  const [accuracy, setAccuracy] = useState('0%');
  const [totalSolved, setTotalSolved] = useState(0);
  const loggedInUsername = localStorage.getItem('username');
+ const [submissionDates, setSubmissionDates] = useState([]);
 
  const logout = () => {
    const newLoginState = !isLoggedIn;
@@ -61,6 +121,16 @@ const ProfilePage = () => {
      } catch (error) {
        console.error('Error fetching submissions:', error);
      }
+
+     const fetchSubmissionDates = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/getdates/${username}`);
+        setSubmissionDates(response.data.submissionDates);
+      } catch (error) {
+        console.error('Error fetching submission dates:', error);
+      }
+    };
+    await fetchSubmissionDates();
    };
 
    const loginState = localStorage.getItem('isLoggedIn') === 'true';
@@ -149,52 +219,72 @@ const ProfilePage = () => {
      <main className="container mx-auto px-4 py-8">
        <div className="bg-gray-800 shadow-lg rounded-lg overflow-hidden p-6">
          <div className="flex flex-col md:flex-row items-center">
-           <div className="flex-shrink-0 mb-4 md:mb-0 md:mr-6">
-             <img
-               src={imageUrl}
-               alt="Profile"
-               className="w-32 h-32 rounded-full object-cover border-2 border-gray-300"
-             />
-             {loggedInUsername === username && (
-               <div className="mt-4 flex space-x-2">
-                 <label className="text-blue-400 hover:underline cursor-pointer">
-                   Upload Image
-                   <input
-                     type="file"
-                     accept="image/*"
-                     className="hidden"
-                     onChange={handleImageUpload}
-                   />
-                 </label>
-                 <button
-                   className="text-red-400 hover:underline"
-                   onClick={handleImageRemove}
-                 >
-                   Remove Image
-                 </button>
-               </div>
-             )}
-           </div>
+          <div className="flex-shrink-0 mb-4 md:mb-0 md:mr-6">
+                <img
+                  src={imageUrl}
+                  alt="Profile"
+                  className="w-40 h-40 ml-7 rounded-full object-cover border-1 border-gray-300"
+                />
+
+                {loggedInUsername === username && (
+                  <div className="mt-4 flex items-center space-x-4">
+                    <label className="text-sm text-blue-600 hover:underline cursor-pointer">
+                      Upload Image
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                      />
+                    </label>
+                    <span className="text-gray-300">|</span>
+                    <button
+                      className="text-sm text-blue-600 hover:underline cursor-pointer"
+                      onClick={handleImageRemove}
+                    >
+                      Remove Image
+                    </button>
+                  </div>
+                )}
+              </div>
+
 
            <div className="flex-1">
              <h1 className="text-2xl font-bold text-white-800 mb-2">{username}</h1>
 
              <div className="bg-gray-700 shadow p-4 rounded-lg">
-               <h2 className="text-xl font-bold font-starwars text-gray-300 mb-3">Stats</h2>
-               <ul className="space-y-2">
-                 <li className="font-bold flex justify-between">
-                   <span>Problems Solved:</span>
-                   <span>{totalSolved}</span>
-                 </li>
-                 <li className="font-bold flex justify-between">
-                   <span>Accuracy:</span>
-                   <span>{accuracy}</span>
-                 </li>
-               </ul>
-             </div>
+              <h2 className="text-xl font-bold font-starwars text-gray-300 mb-3">Stats</h2>
+              <ul className="space-y-2">
+                <li className="font-bold flex justify-between">
+                  <span>Problems Solved:</span>
+                  <span>{totalSolved}</span>
+                </li>
+                <li className="font-bold flex justify-between">
+                  <span>Accuracy:</span>
+                  <span>{accuracy}</span>
+                </li>
+                <li className="font-bold flex justify-between">
+                  <span>Active Days:</span>
+                  <span>{submissionDates.length}</span>
+                </li>
+                <li className="font-bold flex justify-between">
+                  <span>Current Streak:</span>
+                  <span>{getCurrentStreak(submissionDates)} days</span>
+                </li>
+                <li className="font-bold flex justify-between">
+                  <span>Longest Streak:</span>
+                  <span>{getLongestStreak(submissionDates)} days</span>
+                </li>
+              </ul>
+            </div>
            </div>
          </div>
        </div>
+       <div className="bg-gray-800 shadow-lg rounded-lg overflow-hidden p-6 mt-8 flex justify-center items-center">
+        <div className="w-[1000 px]">
+          <HeatMap submissionDates={submissionDates} />
+        </div>
+      </div>
      </main>
    </div>
  );

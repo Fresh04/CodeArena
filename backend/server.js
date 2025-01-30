@@ -21,6 +21,7 @@ const getprofileRoute = require('./routes/getprofile');
 const saveimgRoute = require('./routes/saveimage');
 const uploadimgRoute = require('./routes/upload');
 const getimgRoute = require('./routes/getimage');
+const getdatesRoute = require('./routes/getdates')
 
 function connectMongoDB() {
   const uri = process.env.MONGODB_URI
@@ -53,7 +54,7 @@ app.use('/getprofile', getprofileRoute)
 app.use('/uploadurl', uploadimgRoute)
 app.use('/saveimage', saveimgRoute)
 app.use('/getimage', getimgRoute)
-
+app.use('/getdates', getdatesRoute)
 
 const PORT = port || 3000;
 app.listen(PORT, () => {
