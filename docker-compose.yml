@@ -19,6 +19,7 @@ services:
       - codearena-p
 
   frontend:
+    image: 
     build:
       context: ./frontend/  
     networks:

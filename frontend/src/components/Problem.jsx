@@ -131,7 +131,7 @@ const Problem = () => {
               >
                 <option value="cpp">C++</option>
                 {/* <option value="javascript">JavaScript</option> */}
-                <option value="python">Python</option>
+                <option value="py">Python</option>
               </select>
             </div>
 

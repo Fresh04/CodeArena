@@ -60,12 +60,12 @@ async function executeInDocker(language, filePaths) {
 
   switch (language) {
     case 'cpp':
-      imageName = 'codearena-cpp_docker';
+      imageName = 'codearena_cpp_docker';
       entryPoint = 'g++ main.cpp -o main && timeout 6s ./main';
       break;
-    case 'python':
-      imageName = 'codearena-python_docker';
-      entryPoint = 'timeout 6s python3 main.py';
+    case 'py':
+      imageName = 'codearena_python_docker';
+      entryPoint = 'timeout 6s python main.py';
       break;
     default:
       throw new Error('Unsupported language');
